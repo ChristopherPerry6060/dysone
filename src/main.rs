@@ -49,6 +49,7 @@ const FRAGMENT_SHADER_SRC: &str = r#"
     void main() { color = vec4(1.0, 0.0, 0.0, 1.0); }
 "#;
 
+/// Nanoseconds per frame for 60 FPS.
 const SIXTY_FPS_FRAME_TIME: u64 = 16_666_667;
 
 #[derive(Copy, Clone)]
@@ -139,6 +140,9 @@ fn draw_black(display: &glium::Display) {
     target.clear_color(0.0, 0.0, 0.0, 0.0);
 }
 
+/// Returns an instant describing when the next frame should be shown.
+///
+/// This is implemented using the `const` [`SIXTY_FPS_FRAME_TIME`].
 fn next_frame_time() -> Instant {
     Instant::now() + Duration::from_nanos(SIXTY_FPS_FRAME_TIME)
 }
