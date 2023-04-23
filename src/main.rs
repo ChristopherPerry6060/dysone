@@ -57,10 +57,17 @@ fn main() {
     });
 }
 
-/// Draw a black screen.
+/// Creates a black backbuffer and swaps it with the shown buffer.
 fn draw_black(display: &glium::Display) {
+    // calling draw on a display is not a mutable borrow
+    // it is returning a new backbuffer instance.
+    // Display is context from which you can request a frame buffer.
     let mut target = display.draw();
+
+    // R G B Alpha chx
     target.clear_color(0.0, 0.0, 0.0, 0.0);
+
+    // Finish swaps the shown buffer with the backbuffer.
     target.finish().unwrap();
 }
 
