@@ -69,10 +69,10 @@ implement_vertex!(Vertex, position);
 #[allow(unused)]
 fn main() {
     // Event Loop
-    let mut el = event_loop::EventLoop::new();
+    let el = event_loop::EventLoop::new();
 
     // Window Builder
-    let mut wb = glium::glutin::window::WindowBuilder::new().with_title("Dysone");
+    let wb = glium::glutin::window::WindowBuilder::new().with_title("Dysone");
 
     let cb = glium::glutin::ContextBuilder::new();
     let display = glium::Display::new(wb, cb, &el).unwrap();
