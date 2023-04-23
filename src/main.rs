@@ -16,7 +16,7 @@ fn main() {
     let mut el = event_loop::EventLoop::new();
 
     // Window Builder
-    let mut wb = glium::glutin::window::WindowBuilder::new().with_title("Dyson");
+    let mut wb = glium::glutin::window::WindowBuilder::new().with_title("Dysone");
 
     let cb = glium::glutin::ContextBuilder::new();
     let display = glium::Display::new(wb, cb, &el).unwrap();
