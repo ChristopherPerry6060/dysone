@@ -68,7 +68,6 @@ impl From<[f32; 2]> for Vertex {
 // Not sure why this is needed yet.
 implement_vertex!(Vertex, position);
 
-#[allow(unused)]
 fn main() {
     // Event Loop
     let el = event_loop::EventLoop::new();
