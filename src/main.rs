@@ -9,15 +9,18 @@
 // the screens bounds.
 use std::time::{Duration, Instant};
 
-use glium::{
-    glutin::{
-        event::{Event, WindowEvent},
-        event_loop::{self, ControlFlow},
-    },
-    implement_vertex, index,
-    uniforms::EmptyUniforms,
-    Frame, Program, Surface, VertexBuffer,
+use glium::glutin::{
+    event::{Event, WindowEvent},
+    event_loop::ControlFlow,
+    window::Fullscreen,
 };
+use glium::implement_vertex;
+use glium::index;
+use glium::uniform;
+use glium::Frame;
+use glium::Program;
+use glium::Surface;
+use glium::VertexBuffer;
 
 /// This is GLSL which handles the vertex shading (and all shading in general).
 ///
