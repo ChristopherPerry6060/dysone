@@ -23,23 +23,19 @@ fn main() {
     let cb = glium::glutin::ContextBuilder::new();
     let display = glium::Display::new(wb, cb, &el).unwrap();
 
-    el.run(move |ev, _, control_flow| {
+    el.run(move |event, _, control_flow| {
         draw_black(&display);
 
         // Control flow waits until next frame time.
         *control_flow = ControlFlow::WaitUntil(next_frame_time());
 
-        // Check for window event?
-        if let Event::WindowEvent { event, .. } = ev {
-            // This is needed for ALT F4
-            if let WindowEvent::CloseRequested = event {
-                *control_flow = ControlFlow::Exit;
-                return;
-            };
-        } else {
-            // This is where the good stuff goes?
-            return;
-        }
+        if let Event::WindowEvent {
+            event: WindowEvent::CloseRequested,
+            ..
+        } = event
+        {
+            *control_flow = ControlFlow::Exit;
+        };
     });
 }
 
