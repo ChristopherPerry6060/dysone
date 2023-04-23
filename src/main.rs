@@ -8,7 +8,9 @@ use glium::{
     Surface,
 };
 
-const NANOS: u64 = 16_666_667;
+///
+const SIXTY_FPS_FRAME_TIME: u64 = 16_666_667;
+
 
 #[allow(unused)]
 fn main() {
@@ -49,5 +51,5 @@ fn draw_black(display: &glium::Display) {
 }
 
 fn next_frame_time() -> Instant {
-    Instant::now() + Duration::from_nanos(NANOS)
+    Instant::now() + Duration::from_nanos(SIXTY_FPS_FRAME_TIME)
 }
