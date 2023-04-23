@@ -11,6 +11,15 @@ use glium::{
 ///
 const SIXTY_FPS_FRAME_TIME: u64 = 16_666_667;
 
+#[derive(Copy, Clone)]
+struct Vertex {
+    position: [f32; 2],
+}
+
+// This implements glium's Vertex trait for the type.
+// position matches the struct's field name.
+// Not sure why this is needed yet.
+implement_vertex!(Vertex, position);
 
 #[allow(unused)]
 fn main() {
