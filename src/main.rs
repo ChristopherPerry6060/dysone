@@ -36,7 +36,14 @@ use glium::VertexBuffer;
 const VERTEX_SHADER_SRC: &str = r#"
     #version 140
     in vec2 position;
-    void main() { gl_Position = vec4(position, 0.0, 1.0); }
+    uniform float t;
+
+    void main() { 
+        vec2 pos = position;
+        pos.x += t;
+        // pos instead of position.
+        gl_Position = vec4(pos, 0.0, 1.0);
+    }
 "#;
 
 /// See related documentation for [`VERTEX_SHADER_SRC`].
@@ -86,23 +93,38 @@ fn main() {
     let cb = glium::glutin::ContextBuilder::new();
     let display = glium::Display::new(wb, cb, &el).unwrap();
 
+    let mut t = 0.5;
+    let uniforms = uniform! {
+        matrix: [
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0],
+            [ t , 0.0, 0.0, 1.0f32],
+        ]
+    };
+
+    // Shape stuff
+    let vertex1: Vertex = [-0.5, -0.5].into();
+    let vertex2: Vertex = [0.0, 0.5].into();
+    let vertex3: Vertex = [0.5, -0.5].into();
+
+    // A triangle consists of 3 points, each with a set of coords.
+    let shape = vec![vertex1, vertex2, vertex3];
+
+    // Vertex buffer loads the shape into video card memory.
+    // According to docs this is not required, just faster and trivial implement
+    // due to the API.
+    let vertex_buffer = VertexBuffer::new(&display, &shape).unwrap();
+
+    // Copying this directly from docs, no idea why it is here.
+    // It is supposed to be relevant once shapes grow in complexity.
+    let indices = index::NoIndices(index::PrimitiveType::TrianglesList);
+
     el.run(move |event, _, control_flow| {
-        let vertex1: Vertex = [-0.5, -0.5].into();
-        let vertex2: Vertex = [0.0, 0.5].into();
-        let vertex3: Vertex = [0.5, -0.5].into();
-
-        // A triangle consists of 3 points, each with a set of coords.
-        let shape = vec![vertex1, vertex2, vertex3];
-
-        // Vertex buffer loads the shape into video card memory.
-        // According to docs this is not required, just faster and trivial implement
-        // due to the API.
-        let vertex_buffer = VertexBuffer::new(&display, &shape).unwrap();
-
-        // Copying this directly from docs, no idea why it is here.
-        // It is supposed to be relevant once shapes grow in complexity.
-        let indices = index::NoIndices(index::PrimitiveType::TrianglesList);
-
+        t += 0.01;
+        if t > 1.0 {
+            t = 0.0;
+        }
         let mut target = display.draw();
         draw_black(&mut target);
         target
@@ -110,7 +132,7 @@ fn main() {
                 &vertex_buffer,
                 indices,
                 &get_program(&display),
-                &EmptyUniforms,
+                &uniforms,
                 &Default::default(),
             )
             .unwrap();
