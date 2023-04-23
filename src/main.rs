@@ -14,7 +14,9 @@ use glium::{
         event::{Event, WindowEvent},
         event_loop::{self, ControlFlow},
     },
-    implement_vertex, Surface,
+    implement_vertex, index,
+    uniforms::EmptyUniforms,
+    Program, Surface, VertexBuffer,
 };
 
 /// This is GLSL which handles the vertex shading (and all shading in general).
@@ -79,6 +81,32 @@ fn main() {
 
     el.run(move |event, _, control_flow| {
         draw_black(&display);
+        let vertex1: Vertex = [-0.5, -0.5].into();
+        let vertex2: Vertex = [0.0, 0.5].into();
+        let vertex3: Vertex = [0.5, -0.5].into();
+
+        // A triangle consists of 3 points, each with a set of coords.
+        let shape = vec![vertex1, vertex2, vertex3];
+
+        // Vertex buffer loads the shape into video card memory.
+        // According to docs this is not required, just faster and trivial implement
+        // due to the API.
+        let vertex_buffer = VertexBuffer::new(&display, &shape).unwrap();
+
+        // Copying this directly from docs, no idea why it is here.
+        // It is supposed to be relevant once shapes grow in complexity.
+        let indices = index::NoIndices(index::PrimitiveType::TrianglesList);
+        let mut target = display.draw();
+        target
+            .draw(
+                &vertex_buffer,
+                indices,
+                &get_program(&display),
+                &EmptyUniforms,
+                &Default::default(),
+            )
+            .unwrap();
+        target.finish().unwrap();
 
         // Control flow waits until next frame time.
         *control_flow = ControlFlow::WaitUntil(next_frame_time());
@@ -93,7 +121,15 @@ fn main() {
     });
 }
 
-/// Creates a black backbuffer and swaps it with the shown buffer.
+/// Builds a new program from GLSL source code.
+///
+/// This function is a wrapper around [`Program::from_source`] where the shaders
+/// are populated with predefined constants. A Geometry shader is omitted.
+fn get_program(display: &glium::Display) -> Program {
+    Program::from_source(display, VERTEX_SHADER_SRC, FRAGMENT_SHADER_SRC, None).unwrap()
+}
+
+/// Creates a black blackground.
 fn draw_black(display: &glium::Display) {
     // calling draw on a display is not a mutable borrow
     // it is returning a new backbuffer instance.
