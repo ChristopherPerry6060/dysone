@@ -66,9 +66,6 @@ fn draw_black(display: &glium::Display) {
 
     // R G B Alpha chx
     target.clear_color(0.0, 0.0, 0.0, 0.0);
-
-    // Finish swaps the shown buffer with the backbuffer.
-    target.finish().unwrap();
 }
 
 fn next_frame_time() -> Instant {
