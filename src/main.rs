@@ -54,6 +54,13 @@ struct Vertex {
     position: [f32; 2],
 }
 
+// Convenience implementation.
+impl From<[f32; 2]> for Vertex {
+    fn from(value: [f32; 2]) -> Self {
+        Vertex { position: value }
+    }
+}
+
 // This implements glium's Vertex trait for the type.
 // position matches the struct's field name.
 // Not sure why this is needed yet.
