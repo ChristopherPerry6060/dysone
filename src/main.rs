@@ -1,3 +1,12 @@
+// OpenGL does not use pixel coordinates but rather splits the screen
+// to have a height and width of two units.
+//
+// * 0,0 is center
+// * 0,1 is top-center
+// * -1,-1 is bottom-left
+//
+// Floating points are used to express the range of possible points between
+// the screens bounds.
 use std::time::{Duration, Instant};
 
 use glium::{
@@ -5,7 +14,7 @@ use glium::{
         event::{Event, WindowEvent},
         event_loop::{self, ControlFlow},
     },
-    Surface,
+    implement_vertex, Surface,
 };
 
 ///
