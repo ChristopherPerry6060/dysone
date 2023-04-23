@@ -16,7 +16,7 @@ use glium::{
     },
     implement_vertex, index,
     uniforms::EmptyUniforms,
-    Program, Surface, VertexBuffer,
+    Frame, Program, Surface, VertexBuffer,
 };
 
 /// This is GLSL which handles the vertex shading (and all shading in general).
@@ -80,7 +80,6 @@ fn main() {
     let display = glium::Display::new(wb, cb, &el).unwrap();
 
     el.run(move |event, _, control_flow| {
-        draw_black(&display);
         let vertex1: Vertex = [-0.5, -0.5].into();
         let vertex2: Vertex = [0.0, 0.5].into();
         let vertex3: Vertex = [0.5, -0.5].into();
@@ -96,7 +95,9 @@ fn main() {
         // Copying this directly from docs, no idea why it is here.
         // It is supposed to be relevant once shapes grow in complexity.
         let indices = index::NoIndices(index::PrimitiveType::TrianglesList);
+
         let mut target = display.draw();
+        draw_black(&mut target);
         target
             .draw(
                 &vertex_buffer,
@@ -130,14 +131,8 @@ fn get_program(display: &glium::Display) -> Program {
 }
 
 /// Creates a black blackground.
-fn draw_black(display: &glium::Display) {
-    // calling draw on a display is not a mutable borrow
-    // it is returning a new backbuffer instance.
-    // Display is context from which you can request a frame buffer.
-    let mut target = display.draw();
-
-    // R G B Alpha chx
-    target.clear_color(0.0, 0.0, 0.0, 0.0);
+fn draw_black(frame: &mut Frame) {
+    frame.clear_color(0.0, 0.0, 0.0, 0.0);
 }
 
 /// Returns an instant describing when the next frame should be shown.
