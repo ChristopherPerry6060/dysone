@@ -74,10 +74,14 @@ implement_vertex!(Vertex, position);
 
 fn main() {
     // Event Loop
-    let el = event_loop::EventLoop::new();
+    let el = glium::glutin::event_loop::EventLoop::new();
+    let secondary = secondary_monitor_handle(&el);
+    let fullscreen = Some(Fullscreen::Borderless(secondary));
 
     // Window Builder
-    let wb = glium::glutin::window::WindowBuilder::new().with_title("Dysone");
+    let wb = glium::glutin::window::WindowBuilder::new()
+        .with_fullscreen(fullscreen)
+        .with_title("Dysone");
 
     let cb = glium::glutin::ContextBuilder::new();
     let display = glium::Display::new(wb, cb, &el).unwrap();
@@ -123,6 +127,19 @@ fn main() {
             *control_flow = ControlFlow::Exit;
         };
     });
+}
+
+/// Returns a handle to the secondary monitor.
+///
+/// This is determined by comparing the primary monitory's name with an
+/// iterator of all available monitors. This function will return the first
+/// monitor it finds that is not the primary.
+fn secondary_monitor_handle(
+    el: &glium::glutin::event_loop::EventLoop<()>,
+) -> Option<glium::glutin::monitor::MonitorHandle> {
+    let primary = el.primary_monitor();
+    let primary_name = primary.as_ref()?.name();
+    el.available_monitors().find(|x| x.name() != primary_name)
 }
 
 /// Builds a new program from GLSL source code.
