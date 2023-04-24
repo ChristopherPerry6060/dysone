@@ -1,27 +1,20 @@
-// OpenGL does not use pixel coordinates but rather splits the screen
-// to have a height and width of two units.
-//
-// * 0,0 is center
-// * 0,1 is top-center
-// * -1,-1 is bottom-left
-//
-// Floating points are used to express the range of possible points between
-// the screens bounds.
 use std::time::{Duration, Instant};
 
-use glium::glutin::{
-    event::{Event, WindowEvent},
-    event_loop::ControlFlow,
-    window::Fullscreen,
-};
 use glium::implement_vertex;
 use glium::index;
-use glium::uniform;
-use glium::Frame;
 use glium::Program;
 use glium::Surface;
 use glium::VertexBuffer;
+use glium::{
+    glutin::{
+        event::{Event, WindowEvent},
+        event_loop::ControlFlow,
+        window::Fullscreen,
+    },
+    uniforms::EmptyUniforms,
+};
 
+use dysone::util;
 /// Main function is called *once per Vertex*.
 #[allow(unused)]
 const VERTEX_SHADER_SRC: &str = r#"
@@ -57,6 +50,11 @@ struct Vertex {
     position: [f32; 2],
 }
 
+#[derive(Copy, Clone)]
+struct Square {
+    position: [[f32; 2]; 2],
+}
+
 // Convenience implementation.
 impl From<[f32; 2]> for Vertex {
     fn from(value: [f32; 2]) -> Self {
@@ -72,7 +70,7 @@ implement_vertex!(Vertex, position);
 fn main() {
     // Event Loop
     let el = glium::glutin::event_loop::EventLoop::new();
-    let secondary = secondary_monitor_handle(&el);
+    let secondary = util::secondary_monitor_handle(&el);
     let fullscreen = Some(Fullscreen::Borderless(secondary));
 
     // Window Builder
@@ -83,46 +81,39 @@ fn main() {
     let cb = glium::glutin::ContextBuilder::new();
     let display = glium::Display::new(wb, cb, &el).unwrap();
 
-    let mut t = 0.5;
-    let uniforms = uniform! {
-        matrix: [
-            [1.0, 0.0, 0.0, 0.0],
-            [0.0, 1.0, 0.0, 0.0],
-            [0.0, 0.0, 1.0, 0.0],
-            [ t , 0.0, 0.0, 1.0f32],
-        ]
-    };
-
     // Shape stuff
-    let vertex1: Vertex = [-0.5, -0.5].into();
+    let vertex1: Vertex = [-0.25, 0.0].into();
     let vertex2: Vertex = [0.0, 0.5].into();
-    let vertex3: Vertex = [0.5, -0.5].into();
-
-    // A triangle consists of 3 points, each with a set of coords.
-    let shape = vec![vertex1, vertex2, vertex3];
-
-    // Vertex buffer loads the shape into video card memory.
-    // According to docs this is not required, just faster and trivial implement
-    // due to the API.
-    let vertex_buffer = VertexBuffer::new(&display, &shape).unwrap();
-
-    // Copying this directly from docs, no idea why it is here.
-    // It is supposed to be relevant once shapes grow in complexity.
+    let vertex3: Vertex = [0.25, 0.0].into();
+    let vertex2a: Vertex = [0.0, -0.5].into();
     let indices = index::NoIndices(index::PrimitiveType::TrianglesList);
 
+    let triangle1 = vec![vertex1, vertex2, vertex3];
+
+    let vertex_buffer1 = VertexBuffer::new(&display, &triangle1).unwrap();
+
+    // A triangle consists of 3 points, each with a set of coords.
+    let triangle2 = vec![vertex1, vertex2a, vertex3];
+    let vertex_buffer2 = VertexBuffer::new(&display, &triangle2).unwrap();
+
     el.run(move |event, _, control_flow| {
-        t += 0.01;
-        if t > 1.0 {
-            t = 0.0;
-        }
         let mut target = display.draw();
-        draw_black(&mut target);
+        target.clear_color(0.0, 0.0, 0.0, 0.0);
         target
             .draw(
-                &vertex_buffer,
+                &vertex_buffer1,
                 indices,
                 &get_program(&display),
-                &uniforms,
+                &EmptyUniforms,
+                &Default::default(),
+            )
+            .unwrap();
+        target
+            .draw(
+                &vertex_buffer2,
+                indices,
+                &get_program(&display),
+                &EmptyUniforms,
                 &Default::default(),
             )
             .unwrap();
@@ -141,30 +132,12 @@ fn main() {
     });
 }
 
-/// Returns a handle to the secondary monitor.
-///
-/// This is determined by comparing the primary monitory's name with an
-/// iterator of all available monitors. This function will return the first
-/// monitor it finds that is not the primary.
-fn secondary_monitor_handle(
-    el: &glium::glutin::event_loop::EventLoop<()>,
-) -> Option<glium::glutin::monitor::MonitorHandle> {
-    let primary = el.primary_monitor();
-    let primary_name = primary.as_ref()?.name();
-    el.available_monitors().find(|x| x.name() != primary_name)
-}
-
 /// Builds a new program from GLSL source code.
 ///
 /// This function is a wrapper around [`Program::from_source`] where the shaders
 /// are populated with predefined constants. A Geometry shader is omitted.
 fn get_program(display: &glium::Display) -> Program {
     Program::from_source(display, VERTEX_SHADER_SRC, FRAGMENT_SHADER_SRC, None).unwrap()
-}
-
-/// Creates a black blackground.
-fn draw_black(frame: &mut Frame) {
-    frame.clear_color(0.0, 0.0, 0.0, 0.0);
 }
 
 /// Returns an instant describing when the next frame should be shown.
