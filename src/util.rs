@@ -1,3 +1,5 @@
+use std::io::Cursor;
+
 /// Returns a handle to the secondary monitor.
 ///
 /// This is determined by comparing the primary monitory's name with an
@@ -11,4 +13,10 @@ pub fn secondary_monitor_handle(
     // to the system's preffernce.
     let primary_name = primary.as_ref()?.name();
     el.available_monitors().find(|x| x.name() != primary_name)
+}
+
+/// Returns a test image texture.
+pub fn load_image() -> Result<image::RgbImage, image::ImageError> {
+    let bytes = include_bytes!("../assets/tx.png");
+    Ok(image::load(Cursor::new(bytes), image::ImageFormat::Png)?.to_rgb8())
 }
