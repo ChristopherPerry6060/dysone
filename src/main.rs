@@ -22,16 +22,7 @@ use glium::Program;
 use glium::Surface;
 use glium::VertexBuffer;
 
-/// This is GLSL which handles the vertex shading (and all shading in general).
-///
-/// This ties into the `implement_vertex` macro invocation. vec2 is a
-/// GLSL?(maybe just C) equivalent to the Rust type `[T; 2]`^1.
-/// `in vec2 position` matches the position field within the [`Vertex`] struct
-///
-/// The main function is called *once per Vertex*, or 3 times for a triangle.
-///
-/// [^1]: The docs states `vec2` is equivalent to `[f32; 2]`, I expect
-/// they mean equivalent in length rather than composition.
+/// Main function is called *once per Vertex*.
 #[allow(unused)]
 const VERTEX_SHADER_SRC: &str = r#"
     #version 140
@@ -41,22 +32,21 @@ const VERTEX_SHADER_SRC: &str = r#"
     void main() { 
         vec2 pos = position;
         pos.x += t;
-        // pos instead of position.
         gl_Position = vec4(pos, 0.0, 1.0);
     }
 "#;
 
-/// See related documentation for [`VERTEX_SHADER_SRC`].
-///
-/// contrary to the vertex shader, this main function is ran for each pixel
-/// that is drawn.
+/// Main function is ran for each pixel that is drawn.
 ///
 /// The color conventions is RGBA.
 #[allow(unused)]
 const FRAGMENT_SHADER_SRC: &str = r#"
     #version 140
     out vec4 color;
-    void main() { color = vec4(1.0, 0.0, 0.0, 1.0); }
+
+    void main() { 
+        color = vec4(1.0, 0.0, 0.0, 1.0); 
+    }
 "#;
 
 /// Nanoseconds per frame for 60 FPS.
