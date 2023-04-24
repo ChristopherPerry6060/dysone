@@ -15,8 +15,12 @@ pub fn secondary_monitor_handle(
     el.available_monitors().find(|x| x.name() != primary_name)
 }
 
+type Img = (image::RgbImage, (u32, u32));
+
 /// Returns a test image texture.
-pub fn load_image() -> Result<image::RgbImage, image::ImageError> {
+pub fn load_image() -> Result<Img, image::ImageError> {
     let bytes = include_bytes!("../assets/tx.png");
-    Ok(image::load(Cursor::new(bytes), image::ImageFormat::Png)?.to_rgb8())
+    let by = image::load(Cursor::new(bytes), image::ImageFormat::Png)?.to_rgb8();
+    let dms = by.dimensions();
+    Ok((by, dms))
 }
